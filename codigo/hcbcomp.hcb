@@ -1,0 +1,150 @@
+#asm "cpu 8086"
+#asm "org 0x100"
+#asm "mov ax, cs"
+#asm "mov ds, ax"
+#asm "call _main"
+#asm "ret"
+
+#include "vt.hcb"
+
+#asm "_gC: dw gC"
+#asm "gC: dw 0"
+#asm "_gM: dw gM"
+#asm "gM: dw 0"
+#asm "_gStringTmp: dw gStringTmp"
+#asm "gStringTmp: times 200 db 0"
+
+arq_abrir(nome)
+{
+}
+
+txt_copia(dest, orig)
+{
+    extern char, grava_char;
+    auto i;
+    i = 0;
+    while(char(orig, i) > 0)
+    {
+        grava_char(dest, i, char(orig, i));
+        i ++;
+    }
+    grava_char(dest, i, 0);
+}
+
+txt_concat(dest, orig)
+{
+    extern char, grava_char;
+    auto i, j;
+    i = 0;
+    j = 0;
+    while(char(dest, j) > 0)
+    {
+        j ++;
+    }
+    while(char(orig, i) > 0)
+    {
+        grava_char(dest, j, char(orig, i));
+        i ++;
+        j ++;
+    }
+    grava_char(dest, j, 0);
+}
+
+txt_tam(txt)
+{
+    extern char;
+    auto t;
+    t = 0;
+    while(char(txt, t) > 0)
+    {
+        t ++;
+    }
+    #asm "mov ax, [bp+.t]"
+}
+
+char(txt, pos)
+{
+    #asm "xor ax, ax"
+    #asm "mov bx, [bp+.txt]"
+    #asm "mov si, [bp+.pos]"
+    #asm "mov al, [bx+si]"
+}
+
+grava_char(txt, pos, valor)
+{
+    #asm "xor ax, ax"
+    #asm "mov bx, [bp+.txt]"
+    #asm "mov si, [bp+.pos]"
+    #asm "mov al, [bp+.valor]"
+    #asm "mov [bx+si], al"
+}
+
+le(var)
+{
+    #asm "mov bx, [bp+.var]"
+    #asm "mov ax, [bx]"
+}
+
+grava(var, valor)
+{
+    #asm "mov bx, [bp+.var]"
+    #asm "mov ax, [bp+.valor]"
+    #asm "mov [bx], ax"
+}
+
+arg_fim(c)
+{
+    if(c == 0)
+    {
+        #asm "mov ax, 0xffff"
+        #asm "jmp .fim"
+    }
+    if(c == 10)
+    {
+        #asm "mov ax, 0xffff"
+        #asm "jmp .fim"
+    }
+    if(c == 13)
+    {
+        #asm "mov ax, 0xffff"
+        #asm "jmp .fim"
+    }
+    #asm "mov ax, 0"
+    #asm ".fim:"
+}
+
+arg_copia(dest)
+{
+    extern char, grava_char, arg_fim;
+    auto i, orig;
+    i = 0;
+    orig = 130;
+    while(arg_fim(char(orig, i)) == 0)
+    {
+        grava_char(dest, i, char(orig, i));
+        i ++;
+    }
+    grava_char(dest, i, 0);
+}
+
+main()
+{
+    extern arg_copia, vt_escreva, vt_escreval, le, grava, txt_tam, txt_copia, txt_concat;
+    extern gC, gM, gStringTmp;
+    vt_escreval("HCB Compilador v0.9.1");
+    vt_escreval("Linguagem de Programacao HCB");
+    vt_escreval("Copyright (c) 2020 Humberto Costa dos Santos Junior");
+    arg_copia(gStringTmp);
+    if(txt_tam(gStringTmp) == 0)
+    {
+        vt_escreval("Modo de uso: HCB [Nome do arquivo sem extensao]");
+        vt_escreval("");
+    }
+    else
+    {
+        vt_escreva("Compilando ");
+        txt_concat(gStringTmp, ".hcb");
+        vt_escreval(gStringTmp);
+    }
+    
+}
