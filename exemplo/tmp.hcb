@@ -1,0 +1,25 @@
+#asm "cpu 8086"
+#asm "org 0x100"
+#asm "mov ax, cs"
+#asm "mov ds, ax"
+#asm "call _main"
+#asm "ret"
+
+#include "vt.hcb"
+
+char(txt, pos)
+{
+    #asm "xor ax, ax"
+    #asm "mov bx, [bp+.txt]"
+    #asm "mov si, [bp+.pos]"
+    #asm "mov al, [bx+si]"
+}
+
+main()
+{
+    extern vt_nro, vt_escreva;
+    auto i;
+    vt_escreva("Teste");
+    vt_nro(123);
+}
+

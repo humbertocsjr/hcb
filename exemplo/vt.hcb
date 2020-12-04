@@ -1,0 +1,32 @@
+
+vt_c(c)
+{
+    #asm "mov al, [bp + .c]"
+    #asm "mov ah, 0xe"
+    #asm "mov bx, 0xf"
+    #asm "int 0x10"
+}
+
+vt_nro(nro)
+{
+    extern vt_nro, vt_c;
+    auto tmp1, tmp2;
+    tmp1 = nro / 10;
+    tmp2 = nro % 10;
+    if(tmp1 > 0) vt_nro(tmp1);
+    tmp2 += 48;
+    vt_c(tmp2);
+}
+
+vt_escreva(texto)
+{
+    extern vt_c, char;
+    auto i;
+    i = 0;
+    while(char(texto, i) > 0)
+    {
+        vt_c(char(texto, i));
+        i ++;
+    }
+}
+
